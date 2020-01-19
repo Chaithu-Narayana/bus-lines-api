@@ -1,67 +1,90 @@
-/**
- * 
- */
 package com.trafiklab.bus.lines.service;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.trafiklab.bus.lines.exception.BusLineNotFoundException;
+import com.trafiklab.bus.lines.model.JourneyPatternPointOnLine;
+import com.trafiklab.bus.lines.model.Line;
+import com.trafiklab.bus.lines.model.StopPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.trafiklab.bus.lines.model.JourneyPatternPointOnLine;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- *
+ * Service component that services requests from the controller.
  */
 @Service
 public class BusLinesServiceImpl implements BusLinesService {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Comparator<Map.Entry<Integer, List<JourneyPatternPointOnLine>>> byNumberOfStoppingPoints =
+            Map.Entry.comparingByValue(Comparator.comparingInt(List::size));
 
-	private final TrafiklabHelper trafiklabHelper;
+    private final TrafiklabHelper trafiklabHelper;
 
-	@Autowired
-	public BusLinesServiceImpl(TrafiklabHelper trafiklabHelper) {
-		this.trafiklabHelper = trafiklabHelper;
-	}
+    @Autowired
+    public BusLinesServiceImpl(TrafiklabHelper trafiklabHelper) {
+        this.trafiklabHelper = trafiklabHelper;
+    }
 
-	@Override
-	public String findById() {
-		return trafiklabHelper.findQuote();
-	}
+    /**
+     * {@inheritDoc}
+     * {@link BusLinesService#findLinesWithMostStops(int)}
+     */
+    @Override
+    public List<Line> findLinesWithMostStops(int numberOfResults) {
+        logger.info("Finding out the top " + numberOfResults + " lines with most number of stops.");
 
-	@Override
-	public List<Integer> findTop10BusLines() throws JsonParseException, JsonMappingException, IOException {
+        return trafiklabHelper.findJourneyPatternsByLine()
+                .entrySet()
+                .stream()
+                .sorted(byNumberOfStoppingPoints.reversed())
+                .limit(numberOfResults)
+                .map(Map.Entry::getKey)
+                .map(this::getLineDetailsFor)
+                .collect(Collectors.toList());
+    }
 
-		Map<Integer, List<JourneyPatternPointOnLine>> journeyPatternsByLine = trafiklabHelper.findJourneyPatternsByLine();
+    /**
+     * {@inheritDoc}
+     * {@link BusLinesService#findStopsOnLine(int)}
+     */
+    @Override
+    public List<StopPoint> findStopsOnLine(int lineNumber) {
+        logger.info("Finding out stops on line: " + lineNumber);
 
-		List<Integer> topLines = journeyPatternsByLine.entrySet().stream()
-				.sorted(Map.Entry.comparingByValue(Comparator.comparingInt(List::size))).limit(10)
-				.map(Map.Entry::getKey).collect(Collectors.toList());
+        Map<Integer, List<JourneyPatternPointOnLine>> journeyPatternsByLine =
+                trafiklabHelper.findJourneyPatternsByLine();
 
-		return topLines;
-	}
+        List<JourneyPatternPointOnLine> journeyPatternsOnRequestedLine =
+                Optional.ofNullable(journeyPatternsByLine.get(lineNumber))
+                        .orElseThrow(() -> new BusLineNotFoundException("No bus line exists for number: " + lineNumber));
 
-	@Override
-	public List<Integer> findStopsOnLine(int lineNumber) throws JsonParseException, JsonMappingException, IOException {
+        return journeyPatternsOnRequestedLine.stream()
+                .map(JourneyPatternPointOnLine::getJourneyPatternPointNumber)
+                .map(this::getStopPointDetailsFor)
+                .collect(Collectors.toList());
+    }
 
-		Map<Integer, List<JourneyPatternPointOnLine>> journeyPatternsByLine = trafiklabHelper.findJourneyPatternsByLine();
+    private Line getLineDetailsFor(int lineNumber) {
+        return trafiklabHelper.findAllBusLines()
+                .stream()
+                .filter(line -> line.getLineNumber() == lineNumber)
+                .findFirst()
+                .orElse(null);
+    }
 
-		List<JourneyPatternPointOnLine> journeyPatternsOnLine = journeyPatternsByLine.entrySet().stream()
-				.filter(entry -> lineNumber == entry.getKey()).map(map -> map.getValue()).flatMap(Collection::stream)
-				.collect(Collectors.toList());
+    private StopPoint getStopPointDetailsFor(int pointNumber) {
+        return trafiklabHelper.findAllBusStopPoints()
+                .stream()
+                .filter(stopPoint -> stopPoint.getStopPointNumber() == pointNumber)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No stop point details could be found for point number: " + pointNumber));
+    }
 
-		return journeyPatternsOnLine.stream().map(journeyPattern -> journeyPattern.getJourneyPatternPointNumber())
-				.collect(Collectors.toList());
-	}
-	
 }

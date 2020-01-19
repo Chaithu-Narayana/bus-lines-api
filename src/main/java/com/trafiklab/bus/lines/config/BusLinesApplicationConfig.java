@@ -8,19 +8,20 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableCaching
+@EnableScheduling
 public class BusLinesApplicationConfig {
 	
-	@Value("${connect.timeout}")
+	@Value("${connect.timeout:5000}")
 	private int timeoutInMillis;
 	
 	@Bean
 	public RestTemplate restTemplate() {
-		RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory());
-		return restTemplate;
+		return new RestTemplate(clientHttpRequestFactory());
 	}
 
 	@Bean

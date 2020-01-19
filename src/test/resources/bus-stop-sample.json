@@ -1,0 +1,88 @@
+{
+  "StatusCode": 0,
+  "Message": null,
+  "ExecutionTime": 454,
+  "ResponseData": {
+    "Version": "2020-01-18 00:03",
+    "Type": "StopPoint",
+    "Result": [
+      {
+        "StopPointNumber": "10001",
+        "StopPointName": "Stadshagsplan",
+        "StopAreaNumber": "10001",
+        "LocationNorthingCoordinate": "59.3374104106887",
+        "LocationEastingCoordinate": "18.0216535880432",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2014-06-03 00:00:00.000",
+        "ExistsFromDate": "2014-06-03 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10408",
+        "StopPointName": "S:t Eriksgatan",
+        "StopAreaNumber": "10008",
+        "LocationNorthingCoordinate": "59.3348575932436",
+        "LocationEastingCoordinate": "18.0304264677368",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2018-02-15 00:00:00.000",
+        "ExistsFromDate": "2018-02-15 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10008",
+        "StopPointName": "S:t Eriksgatan",
+        "StopAreaNumber": "10008",
+        "LocationNorthingCoordinate": "59.3346583312157",
+        "LocationEastingCoordinate": "18.0315016515233",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2018-03-29 00:00:00.000",
+        "ExistsFromDate": "2018-03-29 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10012",
+        "StopPointName": "S:t Eriks ögonsjukhus",
+        "StopAreaNumber": "10012",
+        "LocationNorthingCoordinate": "59.3337783076748",
+        "LocationEastingCoordinate": "18.0374650139904",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2015-09-24 00:00:00.000",
+        "ExistsFromDate": "2015-09-24 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10014",
+        "StopPointName": "Scheelegatan",
+        "StopAreaNumber": "10014",
+        "LocationNorthingCoordinate": "59.3329949649964",
+        "LocationEastingCoordinate": "18.0442783066394",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2018-08-20 00:00:00.000",
+        "ExistsFromDate": "2018-08-20 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10016",
+        "StopPointName": "Kungsbroplan",
+        "StopAreaNumber": "10016",
+        "LocationNorthingCoordinate": "59.3323982898700",
+        "LocationEastingCoordinate": "18.0488034046866",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2014-06-03 00:00:00.000",
+        "ExistsFromDate": "2014-06-03 00:00:00.000"
+      },
+      {
+        "StopPointNumber": "10024",
+        "StopPointName": "Hötorget",
+        "StopAreaNumber": "10024",
+        "LocationNorthingCoordinate": "59.3349683092792",
+        "LocationEastingCoordinate": "18.0614182795081",
+        "ZoneShortName": "A",
+        "StopAreaTypeCode": "BUSTERM",
+        "LastModifiedUtcDateTime": "2019-08-27 00:00:00.000",
+        "ExistsFromDate": "2019-08-27 00:00:00.000"
+      }
+    ]
+  }
+}

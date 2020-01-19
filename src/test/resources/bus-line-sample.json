@@ -1,0 +1,35 @@
+{
+  "StatusCode": 0,
+  "Message": null,
+  "ExecutionTime": 434,
+  "ResponseData": {
+    "Version": "2020-01-18 00:03",
+    "Type": "Line",
+    "Result": [
+      {
+        "LineNumber": "1",
+        "LineDesignation": "1",
+        "DefaultTransportMode": "blåbuss",
+        "DefaultTransportModeCode": "BUS",
+        "LastModifiedUtcDateTime": "2007-08-24 00:00:00.000",
+        "ExistsFromDate": "2007-08-24 00:00:00.000"
+      },
+      {
+        "LineNumber": "2",
+        "LineDesignation": "2",
+        "DefaultTransportMode": "",
+        "DefaultTransportModeCode": "BUS",
+        "LastModifiedUtcDateTime": "2007-08-24 00:00:00.000",
+        "ExistsFromDate": "2007-08-24 00:00:00.000"
+      },
+      {
+        "LineNumber": "3",
+        "LineDesignation": "3",
+        "DefaultTransportMode": "blåbuss",
+        "DefaultTransportModeCode": "BUS",
+        "LastModifiedUtcDateTime": "2007-08-24 00:00:00.000",
+        "ExistsFromDate": "2007-08-24 00:00:00.000"
+      }
+    ]
+  }
+}

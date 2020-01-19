@@ -1,22 +1,28 @@
-/**
- * 
- */
 package com.trafiklab.bus.lines.service;
 
-import java.io.IOException;
-import java.util.List;
+import com.trafiklab.bus.lines.model.Line;
+import com.trafiklab.bus.lines.model.StopPoint;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import java.util.List;
 
 /**
  *
  */
 public interface BusLinesService {
 
-	String findById();
-	
-	List<Integer> findTop10BusLines() throws JsonParseException, JsonMappingException, IOException;
-	
-	public List<Integer> findStopsOnLine(int lineNumber) throws JsonParseException, JsonMappingException, IOException;
+    /**
+     * Finds the lines with most no. of stops
+     *
+     * @param numberOfResults indicates the number of lines to output
+     * @return n lines (with details) with most no. of stops; where n indicates the number given as input
+     */
+    List<Line> findLinesWithMostStops(int numberOfResults);
+
+    /**
+     * Finds all the stops (with details) served by the given linenumber
+     *
+     * @param lineNumber unique identification of a line
+     * @return stops served by the given line
+     */
+    List<StopPoint> findStopsOnLine(int lineNumber);
 }

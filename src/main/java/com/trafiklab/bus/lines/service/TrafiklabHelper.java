@@ -1,78 +1,135 @@
 package com.trafiklab.bus.lines.service;
 
-import java.io.File;
-import java.io.IOException;
+import com.trafiklab.bus.lines.model.BaseModel;
+import com.trafiklab.bus.lines.model.JourneyPatternPointOnLine;
+import com.trafiklab.bus.lines.model.Line;
+import com.trafiklab.bus.lines.model.StopPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trafiklab.bus.lines.model.BaseModel;
-import com.trafiklab.bus.lines.model.JourneyPatternPointOnLine;
-import com.trafiklab.bus.lines.model.Quote;
-
+/**
+ * Component that interacts with Trafiklab Api and packages the response for use in the application
+ */
 @Component
 public class TrafiklabHelper {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-	@Autowired
-	public TrafiklabHelper(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
-	}
+    @Value("${journey.patterns.url:URL_NOT_SET}")
+    private String journeyPatternsEndPointUrl;
 
-	public String findQuote() {
-		Quote quote = restTemplate.getForObject("https://gturnquist-quoters.cfapps.io/api/random", Quote.class);
-		return quote.toString();
-	}
+    @Value("${line.url:URL_NOT_SET}")
+    private String lineEndPointUrl;
 
-	@Cacheable("allJourneyPatternsForBuses")
-	public Map<Integer, List<JourneyPatternPointOnLine>> findJourneyPatternsByLine()
-			throws IOException, JsonParseException, JsonMappingException {
-		List<JourneyPatternPointOnLine> results = findAllJourneyPatternsForBuses();
+    @Value("${stop.points.url:URL_NOT_SET}")
+    private String stopPointsEndPointUrl;
 
-		Map<Integer, List<JourneyPatternPointOnLine>> journeyPatternsByLine = results.parallelStream()
-				.collect(Collectors.groupingBy(JourneyPatternPointOnLine::getLineNumber));
-		
-		return journeyPatternsByLine;
-	}
+    @Autowired
+    public TrafiklabHelper(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
-	private List<JourneyPatternPointOnLine> findAllJourneyPatternsForBuses()
-			throws IOException, JsonParseException, JsonMappingException {
+    @Cacheable("allJourneyPatternsForBuses")
+    public Map<Integer, List<JourneyPatternPointOnLine>> findJourneyPatternsByLine() {
+        List<JourneyPatternPointOnLine> allJourneyPatternsForBuses = findAllJourneyPatternsForBuses();
 
-		BaseModel apiResponse = invokeTrafiklabApi();
+        return allJourneyPatternsForBuses.parallelStream()
+                .collect(Collectors.groupingBy(JourneyPatternPointOnLine::getLineNumber));
+    }
 
-		List<JourneyPatternPointOnLine> results = apiResponse.getResponseData().getResult();
+    @Cacheable("allBusLines")
+    public List<Line> findAllBusLines() {
+        BaseModel<Line> apiResponse = invokeTrafiklabApiForBusLines();
 
-		/*
-		 * List<JourneyPatternPointOnLine> pointsOnLine = results.parallelStream()
-		 * .map(result -> (JourneyPatternPointOnLine) result)
-		 * .collect(Collectors.toList());
-		 */
+        return apiResponse.getResponseData().getResult();
+    }
 
-		return results;
-	}
+    @Cacheable("allBusStopPoints")
+    public List<StopPoint> findAllBusStopPoints() {
+        BaseModel<StopPoint> apiResponse = invokeTrafiklabApiForBusStops();
 
-	private BaseModel invokeTrafiklabApi() throws IOException, JsonParseException, JsonMappingException {
-		logger.info("Invoking trafiklab api for 'jour' models..");
+        return apiResponse.getResponseData().getResult()
+                .stream()
+                .filter(stopPoint -> "BUSTERM".equalsIgnoreCase(stopPoint.getStopAreaTypeCode())) // filter bus stops
+                .collect(Collectors.toList());
+    }
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		File file = new File("src/main/resources/lines-bus-jour.json");
+    private List<JourneyPatternPointOnLine> findAllJourneyPatternsForBuses() {
+        BaseModel<JourneyPatternPointOnLine> apiResponse = invokeTrafiklabApiForJourneyPatterns();
 
-		BaseModel apiResponse = objectMapper.readValue(file, BaseModel.class);
+        return apiResponse.getResponseData().getResult();
+    }
 
-		return apiResponse;
-	}
+    private BaseModel<JourneyPatternPointOnLine> invokeTrafiklabApiForJourneyPatterns() {
+        logger.info("Contacting trafiklab api for 'jour' models..");
 
+        ResponseEntity<BaseModel<JourneyPatternPointOnLine>> journeyPatternsResponse =
+                restTemplate.exchange(journeyPatternsEndPointUrl,
+                        HttpMethod.GET,
+                        requestEntityWithCompressionHeaders(),
+                        new ParameterizedTypeReference<>() {
+                        });
+
+        return journeyPatternsResponse.getBody();
+    }
+
+    private BaseModel<Line> invokeTrafiklabApiForBusLines() {
+        logger.info("Contacting trafiklab api for 'line' models..");
+
+        ResponseEntity<BaseModel<Line>> lineResponse =
+                restTemplate.exchange(lineEndPointUrl,
+                        HttpMethod.GET,
+                        requestEntityWithCompressionHeaders(),
+                        new ParameterizedTypeReference<>() {
+                        });
+
+        return lineResponse.getBody();
+    }
+
+    private BaseModel<StopPoint> invokeTrafiklabApiForBusStops() {
+        logger.info("Contacting trafiklab api for 'stop' models..");
+
+        ResponseEntity<BaseModel<StopPoint>> stopPointsResponse =
+                restTemplate.exchange(stopPointsEndPointUrl,
+                        HttpMethod.GET,
+                        requestEntityWithCompressionHeaders(),
+                        new ParameterizedTypeReference<>() {
+                        });
+
+        return stopPointsResponse.getBody();
+    }
+
+    private HttpEntity<?> requestEntityWithCompressionHeaders() {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add(HttpHeaders.ACCEPT_ENCODING, "gzip");
+        return new HttpEntity<>(requestHeaders);
+    }
+
+    void setJourneyPatternsEndPointUrl(String journeyPatternsEndPointUrl) {
+        this.journeyPatternsEndPointUrl = journeyPatternsEndPointUrl;
+    }
+
+    void setLineEndPointUrl(String lineEndPointUrl) {
+        this.lineEndPointUrl = lineEndPointUrl;
+    }
+
+    void setStopPointsEndPointUrl(String stopPointsEndPointUrl) {
+        this.stopPointsEndPointUrl = stopPointsEndPointUrl;
+    }
 }
