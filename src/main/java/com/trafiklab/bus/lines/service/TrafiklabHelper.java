@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ public class TrafiklabHelper {
         this.restTemplate = restTemplate;
     }
 
+    @PostConstruct
     @Cacheable("allJourneyPatternsForBuses")
     public Map<Integer, List<JourneyPatternPointOnLine>> findJourneyPatternsByLine() {
         List<JourneyPatternPointOnLine> allJourneyPatternsForBuses = findAllJourneyPatternsForBuses();
@@ -53,6 +55,7 @@ public class TrafiklabHelper {
                 .collect(Collectors.groupingBy(JourneyPatternPointOnLine::getLineNumber));
     }
 
+    @PostConstruct
     @Cacheable("allBusLines")
     public List<Line> findAllBusLines() {
         BaseModel<Line> apiResponse = invokeTrafiklabApiForBusLines();
@@ -60,6 +63,7 @@ public class TrafiklabHelper {
         return apiResponse.getResponseData().getResult();
     }
 
+    @PostConstruct
     @Cacheable("allBusStopPoints")
     public List<StopPoint> findAllBusStopPoints() {
         BaseModel<StopPoint> apiResponse = invokeTrafiklabApiForBusStops();
