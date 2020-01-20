@@ -88,7 +88,6 @@ public class BusLinesApplicationIntegrationTest {
                 .expectBody()
                 .jsonPath("$.status").isEqualTo("Success")
                 .jsonPath("$.resultData").isNotEmpty();
-        ;
 
         mockServer.verify();
     }
