@@ -122,7 +122,7 @@ public class BusLinesApplicationIntegrationTest {
     }
 
     @Test
-    void findLinesWithMostStops_serverUnavailable() throws URISyntaxException, IOException {
+    void findLinesWithMostStops_serverUnavailable() throws URISyntaxException {
         mockServer.expect(ExpectedCount.once(),
                 requestTo(new URI(journeyPatternsEndPointUrl)))
                 .andExpect(method(HttpMethod.GET))
