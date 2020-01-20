@@ -13,10 +13,10 @@ public interface BusLinesService {
     /**
      * Finds the lines with most no. of stops
      *
-     * @param numberOfResults indicates the number of lines to output
+     * @param numberOfBusLines indicates the desired number of lines to be shown in output
      * @return n lines (with details) with most no. of stops; where n indicates the number given as input
      */
-    List<Line> findLinesWithMostStops(int numberOfResults);
+    List<Line> findLinesWithMostStops(int numberOfBusLines);
 
     /**
      * Finds all the stops (with details) served by the given linenumber

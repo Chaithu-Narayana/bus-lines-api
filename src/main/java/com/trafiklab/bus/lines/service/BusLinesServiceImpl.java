@@ -33,18 +33,20 @@ public class BusLinesServiceImpl implements BusLinesService {
     }
 
     /**
+     * The results from this method may be cached as it always returns static data.
+     *
      * {@inheritDoc}
      * {@link BusLinesService#findLinesWithMostStops(int)}
      */
     @Override
-    public List<Line> findLinesWithMostStops(int numberOfResults) {
-        logger.info("Finding out the top " + numberOfResults + " lines with most number of stops.");
+    public List<Line> findLinesWithMostStops(int numberOfBusLines) {
+        logger.info("Finding out the top " + numberOfBusLines + " lines with most number of stops.");
 
         return trafiklabHelper.findJourneyPatternsByLine()
                 .entrySet()
                 .stream()
                 .sorted(byNumberOfStoppingPoints.reversed())
-                .limit(numberOfResults)
+                .limit(numberOfBusLines)
                 .map(Map.Entry::getKey)
                 .map(this::getLineDetailsFor)
                 .collect(Collectors.toList());
