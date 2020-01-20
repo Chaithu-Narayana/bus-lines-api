@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableScheduling
 public class BusLinesApplicationConfig {
 	
-	@Value("${connect.timeout:5000}")
+	@Value("${connection.timeout.millis:5000}")
 	private int timeoutInMillis;
 	
 	@Bean
