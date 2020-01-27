@@ -121,4 +121,5 @@ If successful, the endpoint responds back with a sample response as below.
 
  - Trafiklab refreshes it's data between 00:00 and 2:00 hours, otherwise the data remains static for the rest of the day. So, this API caches that data and refreshes it everyday at 3 am.
  - UTF-8 encoding has been used and is recommended for use of this API
- - 'Direction Code' has not been considered in any of these endpoints as they anyways don't effect the outcome in both these cases. 
+ - 'Direction Code' has not been considered in any of these endpoints as they anyways don't effect the outcome in both these cases.
+ - API management aspects (securing access - authentication/authorization/api-key-protection) are not included in this assignment.
